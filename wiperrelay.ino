@@ -122,7 +122,7 @@ void setIntervall()
       currentMillis = millis();
      
       switch(mode){
-        //Wenn Schalter auf HIGH ist dann Modus mit 5 Sekunden und auf Modus 1 umgeschaltet
+        //Wenn Schalter auf HIGH ist, dann Intervall mit 5 Sekunden und auf Modus 1 umgeschaltet
        case 0:
        if(StartButtonState == HIGH && startMillis ==1){
         startMillis++;
@@ -132,7 +132,7 @@ void setIntervall()
         else{break;
           }
         
-        //Wenn Schalter auf LOW ist wird nichts ausgeführt und auf Modus 4 umgeschaltet
+        //Wenn Schalter auf LOW ist, wird nichts ausgeführt und auf Modus 2 umgeschaltet
        case 1: 
         if(StartButtonState == LOW && startMillis ==2){
           startMillis++;
@@ -142,7 +142,7 @@ void setIntervall()
          break;
 
 
-       //Wenn Start Button wieder auf High ist dann wird dort angefangen das Intervall zu messen und auf Modus 3 umgeschaltet
+       //Wenn Schalter wieder auf HIGH ist, dann wird dort angefangen das Intervall zu messen und auf Modus 3 umgeschaltet
        case 2: 
         if(StartButtonState == HIGH && startMillis == 3){
             startMillis = currentMillis;
@@ -153,7 +153,7 @@ void setIntervall()
              }
              break;
              
-            //Wenn Start Button  auf Low ist dann wird dort aufgehört das Intervall zu messen und auf Modus 4 umgeschaltet
+            //Wenn Schalter  auf LOW ist, dann wird dort aufgehört das Intervall zu messen und auf Modus 4 umgeschaltet
         case 3:
         if(StartButtonState == LOW && startMillis > 0){
           interval = currentMillis - startMillis;
@@ -165,7 +165,7 @@ void setIntervall()
         else {
           break;
           }
-          //Wenn Start Button auf High geschaltet wird , wird auf Modus 5 gewechselt
+          //Wenn Start Button auf High geschaltet wird läuft das Intervall mit dem Scheibenwischer an und wechselt auf Modus 5
             case 4:  
                   if(StartButtonState == HIGH){
                       mode=5;
@@ -174,14 +174,14 @@ void setIntervall()
                    
                 break;  
 
-            //Wenn Startbutton auf LOW geschaltet wird , wird auf Modus 6 gewechselt
+            //Wenn Schalter auf LOW geschaltet wird, geht der Scheibenwischer asu und wechselt auf Modus 6
             case 5:
             if(StartButtonState == LOW){
                  mode=6;
                   break;
         }
         break;
-        // Neues Intervall wird gemessen
+        // Neues Intervall wird gemessen und wechselt auf Modus 7
       case 6:
       interval = currentMillis - startMillis;
       WipeInterval= (currentMillis - LastWipeTime);
@@ -189,7 +189,7 @@ void setIntervall()
           mode =7;
            break;
 
-  // Messung von Intervall wird beendet und schaltet auf Modus 4 wieder um sodass das Intervall normal durchläuft mit Scheibenwischer an
+  // Messung von Intervall wird beendet und schaltet auf Modus 4 wieder zurück, sodass das Intervall normal durchläuft mit Scheibenwischer an und ab dort eine Schleife entsteht
     case 7:
       if(StartButtonState == HIGH){
          WipeInterval = (currentMillis - LastWipeTime); 
