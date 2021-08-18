@@ -1,18 +1,20 @@
-    /* 
+ /* 
      Michael Kipp
-     Version : 0.5
+     Version : 0.6
       
      */  
       
       
     // General Purpose  
-    int IntWipe = 0;                       // Flag to show we mode we are in. 0= off, 1= first press, 2= 2nd press.  
+    int IntWipe = 0;  // Flag to show we mode we are in. 0= off, 1= first press, 2= 2nd press.  
+    int check = 0;
     int LedState = LOW;                    // ledState used to set the LED  
     unsigned long startMillis = 1;  //some global variables available anywhere in the program
     unsigned long currentMillis;
     unsigned long interval;
     
-    unsigned long WipeInterval = 5000; // Time between wipes as set by start/stop action                            [x secs]  
+    unsigned long WipeInterval = 5000;
+    // Time between wipes as set by start/stop action                            [x secs]  
     unsigned long LastWipeTime =0;          // Time the last wipe was started.  
     unsigned long TimerTime =0;             // used in Timer(), = millis()-LastWipeTime.  
     int ButtonTimeout = 30;                 // Timeout if no button is pressed. Note wipe interval is lower than this.   [30 seconds]  
@@ -22,21 +24,22 @@
     // Button handling variables  
     unsigned long LastButtonCheck = 0;      // Time the Buttons were last checked.  
     unsigned long ButtonPressTime = 0;      // Time the last button was pressed.  
-      
-    boolean StartButtonState = LOW;        // records the StartButton State  
+    
+    boolean StartButtonState = LOW;   
+    boolean WischwasserState = LOW;         // records the StartButton State  
     int StartCount = 0;                     // Start Button counter  
-    boolean StopButtonState = HIGH;         // records the StopButton State  
-    int StopCount = 0;                      // Stop Button counter  
-      
+   
+   
       
     //inputs  
     int StartButton = A0;  
-    int StopButton = 5;  
-    int CalButton = 6;  
+    int wischwasser = A5; 
+    int wischwasseroutput = A7;
+    int wischwassermode = 0;
     int mode = 0;
       
     //Outputs  
-    int WiperRelay = A2;                     // Wiper relay output  
+    int WiperRelay = A6;                     // Wiper relay output  
     const int LEDPin = 13;                  // Pin 13  LED Output  
       
     //Settings  
@@ -59,10 +62,12 @@
       //Define the inputs  
       pinMode (StartButton, INPUT);  
       digitalWrite (StartButton, LOW);  
-      pinMode (StopButton, INPUT);  
-      digitalWrite (StopButton, HIGH);  
+    
+      pinMode(wischwasser, INPUT);
+      digitalWrite(wischwasser, LOW); 
         
       //Define the outputs  
+      pinMode (wischwasseroutput, OUTPUT);  
       pinMode(LEDPin, OUTPUT);  
       pinMode(WiperRelay, OUTPUT);  
       
@@ -73,7 +78,7 @@
       
     void loop()   
     {  
-      setIntervall();    
+    setIntervall();    
     Timer();//See what is needed to be done 
 
       
@@ -82,9 +87,10 @@
       
     void Timer()  
     {  
+      Serial.println(WischwasserState);
       // This controls the various routines and calls them as necessary  
       TimerTime = millis() - LastWipeTime;  
-        
+        bool WischwasserState = digitalRead(wischwasser);  
       if (((millis()-ButtonPressTime) > ButtonTimeout) && (IntWipe == 1))        // 30 Sec timeout for no button press, but only after stopped, or 1 start.  
       {  
         IntWipe = 0;  
@@ -107,13 +113,68 @@
         WipeInterval = 30000;
         }
 
+        if(WischwasserState== HIGH){
+        while(WischwasserState == HIGH){
+          SingleWipe();
+            delay(800);
+            check =1;
+            break;
+              }
+        }
+          if(WischwasserState == LOW && check == 1){
+            
+            WiperRelayState = true;  
+            
+            digitalWrite(WiperRelay, HIGH);  
+            digitalWrite(LEDPin, HIGH);  
+            digitalWrite(wischwasser, HIGH);
+            delay(2000);
+            WiperRelayState = false;  
+            digitalWrite(WiperRelay, LOW);  
+            digitalWrite(LEDPin, LOW); 
+            digitalWrite(wischwasser, LOW);
+         
+            check = 0; 
+           
+            }
+          
+            
+            }
+         
+          
+    
+        
+
 //     else if((TimerTime> FirstWipeInterval)  && (WiperRelayState == false) && StartButtonState == HIGH){
 //        SingleWipe();
 //        }
         
-    }  
-      
-   
+            
+        
+ 
+
+void Wischwasser(){
+     
+      switch(wischwassermode){
+        case 0: break;
+      case 1:
+          if(WischwasserState == LOW && wischwassermode == 1){
+            SingleWipe();
+            Serial.println("Wiped");
+            delay(800); 
+            SingleWipe();
+            Serial.println("Wiped");
+            delay(800); 
+            check = 0;
+            wischwassermode = 0;
+            break;
+            }
+            
+            
+             } 
+       
+           }
+
 
 void setIntervall()  
     {  
@@ -202,8 +263,7 @@ void setIntervall()
 //            }
       
     }
-    Serial.println(mode);
-    Serial.println(TimerTime);
+    
     }
   
     
